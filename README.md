@@ -19,7 +19,6 @@ pip install gradio_toggle
 ## Usage
 
 ```python
-
 import gradio as gr
 from gradio_toggle import Toggle
 
@@ -27,27 +26,28 @@ def update(input):
     output = input
     return output
 
-
 with gr.Blocks() as demo:
-    input = Toggle(
-        label="Input",
-        value=False,
-        info="Input version of the component",
-        interactive=True,
-    )
-    output = Toggle(
-        label="Output",
-        value=False,
-        color="blue",
-        info="Output version of the component",
-        interactive=False,
-    )
+    title = gr.HTML("<h1><center>gradio-toggle demo</center></h1>")
+    with gr.Row():
+        with gr.Column():
+            input = Toggle(
+                label="Input",
+                value=False,
+                info="Input version of the component",
+                interactive=True,
+            )
+        with gr.Column():
+            output = Toggle(
+                label="Output",
+                value=False,
+                color="green",
+                interactive=False,
+            )
         
     input.change(fn=update, inputs=input, outputs=output)
         
 if __name__ == "__main__":
     demo.launch()
-
 ```
 
 ## `Toggle`
