@@ -5,19 +5,21 @@
 # (c) 2024
 
 from __future__ import annotations
-
-from typing import Any, Callable, List, Optional, Union
-
+from typing import TYPE_CHECKING, Any, Callable
 from gradio_client.documentation import document
-
-from gradio.components.base import FormComponent
-from gradio.data_classes import GradioModel
+from gradio.components.base import Component, FormComponent
 from gradio.events import Events
 
+if TYPE_CHECKING:
+    from gradio.components import Timer
 
-class toggle(FormComponent):
+
+@document()
+class Toggle(FormComponent):
     """
     A toggle component that represents a boolean value, allowing users to switch between True and False states. Can function both as an input, to capture user interaction, and as an output, to display a boolean state.
+
+    Demos: sentence_builder, hello_world_3
     """
 
     EVENTS = [Events.change, Events.input, Events.select]
@@ -28,7 +30,9 @@ class toggle(FormComponent):
         *,
         label: str | None = None,
         info: str | None = None,
-        every: float | None = None,
+        color: str | Callable | None = None,
+        every: Timer | float | None = None,
+        inputs: Component | list[Component] | set[Component] | None = None,
         show_label: bool | None = None,
         container: bool = True,
         scale: int | None = None,
@@ -38,7 +42,7 @@ class toggle(FormComponent):
         elem_id: str | None = None,
         elem_classes: list[str] | str | None = None,
         render: bool = True,
-        color: str | None = None,
+        key: int | str | None = None
     ):
         """
         Parameters:
@@ -56,12 +60,14 @@ class toggle(FormComponent):
             elem_classes: Optional list of class names for the HTML element; useful for CSS customizations.
             every: If value is callable, specifies how frequently (in seconds) to refresh the value while the interface is open.
             render: If False, the component is not rendered immediately, useful for deferred rendering or conditional UI updates.
+            key: if assigned, will be used to assume identity across a re-render. Components that have the same key across a re-render will have their value preserved.
         """
-        self.color = color
         super().__init__(
+            value=value,
             label=label,
             info=info,
             every=every,
+            inputs=inputs,
             show_label=show_label,
             container=container,
             scale=scale,
@@ -71,8 +77,11 @@ class toggle(FormComponent):
             elem_id=elem_id,
             elem_classes=elem_classes,
             render=render,
-            value=value,
+            key=key
         )
+        
+        # Assign the color parameter to an instance variable
+        self.color = color
 
     def api_info(self) -> dict[str, Any]:
         return {"type": "boolean"}
