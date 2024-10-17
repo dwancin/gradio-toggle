@@ -5,8 +5,12 @@
 # (c) 2024
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Callable
+
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Any, Literal
+
 from gradio_client.documentation import document
+
 from gradio.components.base import Component, FormComponent
 from gradio.events import Events
 
@@ -14,10 +18,10 @@ if TYPE_CHECKING:
     from gradio.components import Timer
 
 
-@document()
 class Toggle(FormComponent):
     """
-    A toggle component that represents a boolean value, allowing users to switch between True and False states. Can function both as an input, to capture user interaction, and as an output, to display a boolean state.
+    Creates a checkbox that can be set to `True` or `False`. Can be used as an input to pass a boolean value to a function or as an output
+    to display a boolean value.
 
     Demos: sentence_builder, hello_world_3
     """
@@ -31,8 +35,10 @@ class Toggle(FormComponent):
         label: str | None = None,
         info: str | None = None,
         color: str | Callable | None = None,
+        radius: Literal["sm", "lg"] = "lg",
+        transition: float = 0.3,
         every: Timer | float | None = None,
-        inputs: Component | list[Component] | set[Component] | None = None,
+        inputs: Component | Sequence[Component] | set[Component] | None = None,
         show_label: bool | None = None,
         container: bool = True,
         scale: int | None = None,
@@ -42,28 +48,46 @@ class Toggle(FormComponent):
         elem_id: str | None = None,
         elem_classes: list[str] | str | None = None,
         render: bool = True,
-        key: int | str | None = None
+        key: int | str | None = None,
     ):
         """
         Parameters:
-            value: Initial state of the toggle. If callable, it sets the initial state dynamically when the app loads.
-            label: Text label displayed adjacent to the toggle. If None and used within a `gr.Interface`, it defaults to the parameter name.
-            info: Text displayed below the toggle for additional guidance or information.
-            color: Optional color setting for the toggle, supporting CSS color values (e.g., names, hex codes).
-            show_label: If True, the label is displayed; otherwise, it is hidden.
-            interactive: If True, the toggle can be interacted with; if False, it is disabled. Default behavior is auto-detected based on usage.
-            visible: If False, the toggle is not rendered visibly in the interface.
-            container: If True, the toggle is placed within a styled container for visual grouping and padding.
-            scale: Relative sizing of the toggle in comparison to adjacent components when displayed in a row or block.
-            min_width: Minimum width in pixels that the toggle will occupy, ensuring it does not shrink below this size.
-            elem_id: Optional identifier for the HTML element; useful for CSS customizations.
-            elem_classes: Optional list of class names for the HTML element; useful for CSS customizations.
-            every: If value is callable, specifies how frequently (in seconds) to refresh the value while the interface is open.
-            render: If False, the component is not rendered immediately, useful for deferred rendering or conditional UI updates.
-            key: if assigned, will be used to assume identity across a re-render. Components that have the same key across a re-render will have their value preserved.
+            value: 
+                Initial state of the toggle. If callable, it sets the initial state dynamically when the app loads.
+            label: 
+                Text label displayed adjacent to the toggle. If None and used within a `gr.Interface`, it defaults to the parameter name.
+            info: 
+                Text displayed below the toggle for additional guidance or information.
+            color: 
+                Optional color setting for the toggle, supporting CSS color values (e.g., names, hex codes).
+            radius:
+                Size of the border radius used for the toggle style.
+            transition:
+                Transition time (in seconds) between on and off state.
+            show_label: 
+                If True, the label is displayed; otherwise, it is hidden.
+            interactive: 
+                If True, the toggle can be interacted with; if False, it is disabled. Default behavior is auto-detected based on usage.
+            visible: 
+                If False, the toggle is not rendered visibly in the interface.
+            container: 
+                If True, the toggle is placed within a styled container for visual grouping and padding.
+            scale: 
+                Relative sizing of the toggle in comparison to adjacent components when displayed in a row or block.
+            min_width: 
+                Minimum width in pixels that the toggle will occupy, ensuring it does not shrink below this size.
+            elem_id: 
+                Optional identifier for the HTML element; useful for CSS customizations.
+            elem_classes: 
+                Optional list of class names for the HTML element; useful for CSS customizations.
+            every: 
+                If value is callable, specifies how frequently (in seconds) to refresh the value while the interface is open.
+            render: 
+                If False, the component is not rendered immediately, useful for deferred rendering or conditional UI updates.
+            key: 
+                If assigned, will be used to assume identity across a re-render. Components that have the same key across a re-render will have their value preserved.
         """
         super().__init__(
-            value=value,
             label=label,
             info=info,
             every=every,
@@ -77,11 +101,12 @@ class Toggle(FormComponent):
             elem_id=elem_id,
             elem_classes=elem_classes,
             render=render,
-            key=key
+            key=key,
+            value=value
         )
-        
-        # Assign the color parameter to an instance variable
         self.color = color
+        self.radius = radius
+        self.transition = transition
 
     def api_info(self) -> dict[str, Any]:
         return {"type": "boolean"}
