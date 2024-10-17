@@ -1,4 +1,3 @@
-
 # `gradio_toggle`
 <div style="display: flex; gap: 7px;">
   <a href="https://pypi.org/project/gradio-toggle/" target="_blank"><img alt="PyPI" src="https://img.shields.io/pypi/v/gradio-toggle"></a>
@@ -85,6 +84,12 @@ bool | Callable
 str | None
 ```
 
+<tr>
+<td align="left"><code>label</code></td>
+<td align="left" style="width: 25%;">
+
+str | None
+
 </td>
 <td align="left"><code>None</code></td>
 <td align="left">Text label displayed adjacent to the toggle. If None and used within a `gr.Interface`, it defaults to the parameter name.</td>
@@ -94,9 +99,7 @@ str | None
 <td align="left"><code>info</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 str | None
-```
 
 </td>
 <td align="left"><code>None</code></td>
@@ -107,9 +110,7 @@ str | None
 <td align="left"><code>color</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 str | None
-```
 
 </td>
 <td align="left"><code>None</code></td>
@@ -117,12 +118,32 @@ str | None
 </tr>
 
 <tr>
+<td align="left"><code>radius</code></td>
+<td align="left" style="width: 25%;">
+
+Literal["sm", "lg"]
+
+</td>
+<td align="left"><code>"lg"</code></td>
+<td align="left">Size of the border radius used for the toggle style.</td>
+</tr>
+
+<tr>
+<td align="left"><code>transition</code></td>
+<td align="left" style="width: 25%;">
+
+float
+
+</td>
+<td align="left"><code>0.3</code></td>
+<td align="left">Transition time (in seconds) between the on and off state.</td>
+</tr>
+
+<tr>
 <td align="left"><code>show_label</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 bool | None
-```
 
 </td>
 <td align="left"><code>None</code></td>
@@ -133,9 +154,7 @@ bool | None
 <td align="left"><code>container</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 bool
-```
 
 </td>
 <td align="left"><code>True</code></td>
@@ -146,9 +165,7 @@ bool
 <td align="left"><code>scale</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 int | None
-```
 
 </td>
 <td align="left"><code>None</code></td>
@@ -159,9 +176,7 @@ int | None
 <td align="left"><code>min_width</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 int
-```
 
 </td>
 <td align="left"><code>160</code></td>
@@ -172,9 +187,7 @@ int
 <td align="left"><code>interactive</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 bool | None
-```
 
 </td>
 <td align="left"><code>None</code></td>
@@ -185,9 +198,7 @@ bool | None
 <td align="left"><code>visible</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 bool
-```
 
 </td>
 <td align="left"><code>True</code></td>
@@ -198,9 +209,7 @@ bool
 <td align="left"><code>elem_id</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 str | None
-```
 
 </td>
 <td align="left"><code>None</code></td>
@@ -211,9 +220,7 @@ str | None
 <td align="left"><code>elem_classes</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 list[str] | str | None
-```
 
 </td>
 <td align="left"><code>None</code></td>
@@ -224,9 +231,7 @@ list[str] | str | None
 <td align="left"><code>every</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 float | None
-```
 
 </td>
 <td align="left"><code>None</code></td>
@@ -237,16 +242,23 @@ float | None
 <td align="left"><code>render</code></td>
 <td align="left" style="width: 25%;">
 
-```python
 bool
-```
 
 </td>
 <td align="left"><code>True</code></td>
 <td align="left">If False, the component is not rendered immediately, useful for deferred rendering or conditional UI updates.</td>
 </tr>
 
-</tbody></table>
+<tr>
+<td align="left"><code>key</code></td>
+<td align="left" style="width: 25%;">
+
+int | str | None
+
+</td>
+<td align="left"><code>None</code></td>
+<td align="left">If assigned, will be used to assume identity across a re-render. Components that have the same key across a re-render will have their value preserved.</td>
+</tr>
 
 
 ### Events
