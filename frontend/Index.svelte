@@ -7,167 +7,185 @@ https://github.com/dwancin
 -->
 
 <script context="module" lang="ts">
-    export { default as BaseCheckbox } from "./shared/Checkbox.svelte";
+	export { default as BaseCheckbox } from "./shared/Checkbox.svelte";
 </script>
 
 <script lang="ts">
-    import { writable, get } from 'svelte/store';
-    import type { Gradio } from "@gradio/utils";
-    import { Block, Info } from "@gradio/atoms";
-    import { StatusTracker } from "@gradio/statustracker";
-    import type { LoadingStatus } from "@gradio/statustracker";
-    import type { SelectData } from "@gradio/utils";
-    import { afterUpdate, onMount } from "svelte";
+	import type { Gradio } from "@gradio/utils";
+	import { Block, Info } from "@gradio/atoms";
+	import { StatusTracker } from "@gradio/statustracker";
+	import type { LoadingStatus } from "@gradio/statustracker";
+	import type { SelectData } from "@gradio/utils";
+	import { afterUpdate } from "svelte";
 
-    export let value: boolean = false;
-    export let label = "Toggle";
-    export let show_label: boolean = true;
-    export let visible = true;
-    export let info: string | undefined = undefined;
-    export let color: string = "var(--checkbox-background-color-selected)";
-    export let container = true;
-    export let scale: number | null = null;
-    export let min_width: number | undefined = undefined;
-    export let interactive: boolean = true;
-    export let elem_id = "";
-    export let elem_classes: string[] = [];
-    export let value_is_output = false;
-    export let loading_status: LoadingStatus;
-    export let gradio: Gradio<{
-        change: never;
-        select: SelectData;
-        input: never;
-        clear_status: LoadingStatus;
-    }>;
+	// Props
+	export let elem_id = "";
+	export let elem_classes: string[] = [];
+	export let visible = true;
+	export let value = false;
+	export let color: string = "var(--checkbox-background-color-selected)";
+	export let radius: "sm" | "lg" = "lg";
+	export let transition: GLfloat = 0.3;
+	export let value_is_output = false;
+	export let label = "Toggle";
+	export let show_label: boolean = true;
+	export let info: string | undefined = undefined;
+	export let root: string;
+	export let container = true;
+	export let scale: number | null = null;
+	export let min_width: number | undefined = undefined;
+	export let loading_status: LoadingStatus;
+	export let gradio: Gradio<{
+		change: never;
+		select: SelectData;
+		input: never;
+		clear_status: LoadingStatus;
+	}>;
+	export let interactive: boolean;
 
-    const valueStore = writable(value);
+	// Dispatch change and input events
+	function handle_change(): void {
+		gradio.dispatch("change");
+		if (!value_is_output) {
+			gradio.dispatch("input");
+		}
+	}
 
-    function handleChange(): void {
-        if (interactive) {
-            valueStore.update(v => !v);
-            gradio.dispatch("change");
-            if (!value_is_output) {
-                gradio.dispatch("input");
-            }
-        }
-    }
+	// Toggle the value when the component is activated
+	function activateToggle(event: MouseEvent | KeyboardEvent) {
+		// Allow toggle only when interactive
+		if (interactive) {
+			value = !value;
+			handle_change();
+			event.preventDefault(); // Prevent default behavior (useful for keyboard events)
+		}
+	}
 
-    function handleKeydown(event: KeyboardEvent): void {
-        if (interactive && (event.key === 'Enter' || event.key === ' ')) {
-            event.preventDefault();
-            handleChange();
-        }
-    }
-
-    $: valueStore.subscribe(val => {
-        value = val;
-    });
-
-    afterUpdate(() => {
-        value_is_output = false;
-    });
-
-    onMount(() => {
-        valueStore.set(value);
-    });
-
-    $: {
-        if (get(valueStore) !== value) {
-            valueStore.set(value);
-        }
-    }
+	// Reset output state after update
+	afterUpdate(() => {
+		value_is_output = false;
+	});
 </script>
 
 <Block {visible} {elem_id} {elem_classes} {container} {scale} {min_width}>
-    <StatusTracker
-        autoscroll={gradio.autoscroll}
-        i18n={gradio.i18n}
-        {...loading_status}
-        on:clear_status={() => gradio.dispatch("clear_status", loading_status)}
-    />
-    <div class="block-component">
-        <div class="container">
-            {#if show_label}
-                <div class="block-label" for={elem_id}>{label}</div>
-            {/if}
-            <div
-                id={elem_id}
-                on:click={handleChange}
-                on:keydown={handleKeydown}
-                class="toggle {value ? 'active' : ''} {interactive ? '' : 'non-interactive'}"
-                tabindex="{interactive ? '0' : '-1'}"
-                role="switch"
-                aria-checked={value.toString()}
-                aria-label={label}
-                style="--toggle-background-color: {value ? color : 'var(--border-color-primary)'};"
-            >
-                <div class="toggle-knob"></div>
-            </div>
-        </div>
-        {#if info}
-            <div id="info" class="block-label-container">
-                <div class="block-info">{info}</div>
-            </div>
-        {/if}
-    </div>
+	<StatusTracker
+		autoscroll={gradio.autoscroll}
+		i18n={gradio.i18n}
+		{...loading_status}
+		on:clear_status={() => gradio.dispatch("clear_status", loading_status)}
+	/>
+
+	{#if info}
+		<Info {root} {info} />
+	{/if}
+
+	<!-- svelte-ignore a11y-role-supports-aria-props -->
+	<!-- svelte-ignore a11y-role-has-required-aria-props -->
+	<div
+		class="toggle {interactive ? '' : 'non-interactive'}"
+		role="switch"
+		tabindex="0"
+		aria-pressed="{value}"
+		aria-label="{show_label ? label : 'Toggle'}"
+		on:click={activateToggle}
+		on:keydown={(e) => ['Enter', ' '].includes(e.key) && activateToggle(e)}
+	>
+		<div
+			class="toggle-switch"
+			class:active={value}
+			style="
+				background-color: {value ? color : 'var(--border-color-primary)'};
+				border-radius: {radius === 'sm' ? 'var(--radius-xs)' : 'var(--radius-xl)'};
+				transition: background-color {transition}s, box-shadow {transition}s;
+			"
+		>
+			<div 
+				class="toggle-knob"
+				style="
+					border-radius: {radius === 'sm' ? 'var(--radius-xs)' : 'var(--radius-100)'};
+					transition: left {transition}s;
+				"
+			>
+			</div>
+		</div>
+		{#if show_label}
+			<span class="toggle-label">{label}</span>
+		{/if}
+	</div>
 </Block>
 
 <style>
-    .container {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-    }
-    .toggle {
-        position: relative;
-        width: 57px;
-        height: 27px;
-        display: inline-block;
-        border-radius: var(--radius-xxl);
-        background: var(--toggle-background-color);
-        box-shadow: var(--shadow-inset);
-        transition: background-color 0.3s, cursor 0.3s;
-        border: solid 0.4px var(--border-color-primary);
-        cursor: pointer;
-    }
-    .toggle.active {
-        background: var(--toggle-background-color);
-    }
-    .toggle-knob {
-        position: absolute;
-        top: 3px;
-        left: 4px;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background-color: white;
-        box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
-        transition: transform 0.3s;
-    }
-    .toggle.active .toggle-knob {
-        transform: translateX(27px);
-    }
-    .toggle.non-interactive {
-        cursor: not-allowed;
-    }
-    .block-label {
-        font-size: var(--block-title-text-size);
-        margin-right: var(--spacing-md);
-        color: var(--block-title-text-color);
-        background: var(--block-title-background-fill);
-        cursor: default;
-        font-weight: var(--block-title-text-weight);
-        line-height: var(--line-sm);
-        font-family: var(--font);
-        display: inline-block;
-        position: relative;
-    }
-    .block-info {
-        margin-bottom: var(--spacing-lg);
-        color: var(--block-info-text-color);
-        font-weight: var(--block-info-text-weight);
-        cursor: default;
-        font-size: var(--block-info-text-size);
-        line-height: var(--line-sm);
-    }
+	:root {
+		--toggle-width: var(--size-10);
+		--toggle-height: var(--size-5);
+		--knob-size: var(--spacing-xxl);
+		--knob-radius: var(--radius-lg);
+		--knob-background-color: white;
+		--toggle-gap: var(--spacing-xl);
+		--toggle-label-text-color: var(--checkbox-label-text-color);
+		--toggle-label-text-size: var(--checkbox-label-text-size);
+		--toggle-label-text-weight: var(--checkbox-label-text-weight);
+		--toggle-border-color: var(--block-title-border-color);
+		--toggle-background-color: var(--border-color-yprimar);
+		--toggle-background-color-selected: var(--checkbox-background-color-selected);
+		--toggle-shadow: var(--shadow-drop);
+	}
+
+	.toggle {
+		display: flex;
+		align-items: center;
+		cursor: pointer;
+		user-select: none;
+		outline: none;
+		gap: var(--toggle-gap);
+	}
+
+	.toggle-label {
+		display: inline-block;
+		position: relative;
+		z-index: var(--layer-4);
+		border: solid var(--block-title-border-width) var(--toggle-border-color);
+		border-radius: var(--block-title-radius);
+		background: var(--block-title-background-fill);
+		padding: var(--block-title-padding);
+		color: var(--toggle-label-text-color);
+		font-weight: var(--toggle-label-text-weight);
+		font-size: var(--toggle-label-text-size);
+	}
+
+	.toggle-switch {
+		width: var(--toggle-width);
+		height: var(--toggle-height);
+		background-color: var(--toggle-background-color);
+		position: relative;
+		box-shadow: var(--toggle-shadow);
+	}
+
+	.toggle-switch.active {
+		background-color: var(--toggle-background-color-selected);
+	}
+
+	.toggle-knob {
+		width: var(--knob-size);
+		height: var(--knob-size);
+		background-color: white;
+		border-radius: var(--radius-lg);
+		position: absolute;
+		top: 2px;
+		left: 2px;
+	}
+
+	.toggle-switch.active .toggle-knob {
+		left: calc(var(--toggle-width) - var(--knob-size) - 2px);
+	}
+
+	.toggle:hover .toggle-switch,
+	.toggle:focus .toggle-switch {
+		box-shadow: var(--toggle-shadow);
+	}
+
+	/* New style for non-interactive state */
+	.non-interactive {
+		cursor: no-drop;
+	}
 </style>
